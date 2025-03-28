@@ -12,18 +12,20 @@ using System.Security.Claims;
 
 namespace Eventify.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
-    public class BigliettiController : ControllerBase
+    [Route("api/[controller]")]
+    public class BigliettoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public BigliettiController(ApplicationDbContext context)
+        public BigliettoController(ApplicationDbContext context)
         {
             _context = context;
         }
 
         [HttpGet]
+        [Authorize(Roles = "Amministratore")]
+
         public async Task<ActionResult<IEnumerable<BigliettoDto>>> GetBiglietti()
         {
             return await _context.Biglietti
@@ -43,13 +45,45 @@ namespace Eventify.Controllers
                 .ToListAsync();
         }
 
+        [HttpGet("user")]
+        [Authorize]
+        public async Task<ActionResult<IEnumerable<BigliettoDto>>> GetUserBiglietti()
+        {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            return await _context.Biglietti
+                .Where(b => b.UserId == userId)
+                .Include(b => b.Evento)
+                .Select(b => new BigliettoDto
+                {
+                    BigliettoId = b.BigliettoId,
+                    EventoId = b.EventoId,
+                    TitoloEvento = b.Evento.Titolo,
+                    UserId = b.UserId,
+                    DataAcquisto = b.DataAcquisto,
+                    Prezzo = b.Prezzo,
+                    Stato = b.Stato
+                })
+                .ToListAsync();
+        }
+
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<ActionResult<BigliettoDto>> GetBiglietto(int id)
         {
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
             var biglietto = await _context.Biglietti
                 .Include(b => b.Evento)
-                .Include(b => b.User)
-                .FirstOrDefaultAsync(b => b.BigliettoId == id);
+                .FirstOrDefaultAsync(b => b.BigliettoId == id && b.UserId == userId);
 
             if (biglietto == null)
             {
@@ -62,7 +96,6 @@ namespace Eventify.Controllers
                 EventoId = biglietto.EventoId,
                 TitoloEvento = biglietto.Evento.Titolo,
                 UserId = biglietto.UserId,
-                UserName = biglietto.User.UserName,
                 DataAcquisto = biglietto.DataAcquisto,
                 Prezzo = biglietto.Prezzo,
                 Stato = biglietto.Stato
@@ -131,17 +164,28 @@ namespace Eventify.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteBiglietto(int id)
         {
-            var biglietto = await _context.Biglietti.Include(b => b.User).FirstOrDefaultAsync(b => b.BigliettoId == id);
+            var biglietto = await _context.Biglietti
+                .Include(b => b.User)
+                .Include(b => b.Evento)
+                .FirstOrDefaultAsync(b => b.BigliettoId == id);
+
             if (biglietto == null)
             {
                 return NotFound();
             }
 
-            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (biglietto.UserId != userId)
             {
                 return Unauthorized();
             }
+
+            if (biglietto.Evento.Data <= DateTime.UtcNow)
+            {
+                return BadRequest("Non è possibile cancellare un biglietto per un evento già passato.");
+            }
+
+            biglietto.Evento.BigliettiVenduti--;
 
             _context.Biglietti.Remove(biglietto);
             await _context.SaveChangesAsync();

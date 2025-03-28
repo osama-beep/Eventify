@@ -1,6 +1,6 @@
 using System;
 
-namespace Eventify.DTO
+namespace Eventify.DTO.Evento
 {
     public class EventoDto
     {

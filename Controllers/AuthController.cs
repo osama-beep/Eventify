@@ -40,17 +40,20 @@ public class AuthController : ControllerBase
         if (user == null || !(await _userManager.CheckPasswordAsync(user, model.Password)))
             return Unauthorized("Credenziali non valide.");
 
-        var token = GenerateJwtToken(user);
+        var token = await GenerateJwtToken(user);
         return Ok(new { Token = token });
     }
 
-    private string GenerateJwtToken(ApplicationUser user)
+    private async Task<string> GenerateJwtToken(ApplicationUser user)
     {
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Id),
             new Claim(JwtRegisteredClaimNames.Email, user.Email)
         };
+
+        var roles = await _userManager.GetRolesAsync(user);
+        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

@@ -42,7 +42,6 @@ namespace Eventify.Models
         [NotMapped]
         public int BigliettiDisponibili => Capienza - BigliettiVenduti;
 
-
         [Required(ErrorMessage = "Il prezzo del biglietto è obbligatorio")]
         [Range(0, double.MaxValue, ErrorMessage = "Il prezzo deve essere un numero positivo")]
         [Column(TypeName = "decimal(18, 2)")]
@@ -51,6 +50,24 @@ namespace Eventify.Models
         public Evento()
         {
             Biglietti = new HashSet<Biglietto>();
+        }
+
+        public bool VendiBiglietto()
+        {
+            if (BigliettiDisponibili > 0)
+            {
+                BigliettiVenduti++;
+                return true;
+            }
+            return false;
+        }
+
+        public void AnnullaBiglietto()
+        {
+            if (BigliettiVenduti > 0)
+            {
+                BigliettiVenduti--;
+            }
         }
     }
 }

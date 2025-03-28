@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace Eventify.DTO
+namespace Eventify.DTO.Evento
 {
     public class CreateEventoDto
     {

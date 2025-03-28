@@ -53,6 +53,8 @@ public class ArtistiController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Amministratore")]
+
     public async Task<ActionResult<Artista>> PostArtista(CreateArtistaDto artistaDto)
     {
         var artista = new Artista
@@ -68,6 +70,8 @@ public class ArtistiController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Amministratore")]
+
     public async Task<IActionResult> PutArtista(int id, UpdateArtistaDto artistaDto)
     {
         if (id != artistaDto.ArtistaId)
@@ -92,6 +96,7 @@ public class ArtistiController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Amministratore")]
     public async Task<IActionResult> DeleteArtista(int id)
     {
         var artista = await _context.Artisti.FindAsync(id);

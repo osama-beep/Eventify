@@ -1,22 +1,22 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Eventify.Models;
-using Eventify.DTO;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Eventify.Data;
 using System.Linq;
+using Eventify.DTO.Evento;  // Modifica questa riga per importare i DTO dalla cartella corretta
 
 namespace Eventify.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class EventiController : ControllerBase
+    public class EventoController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
 
-        public EventiController(ApplicationDbContext context)
+        public EventoController(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -76,6 +76,8 @@ namespace Eventify.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Amministratore")]
+
         public async Task<ActionResult<EventoDto>> PostEvento(CreateEventoDto createEventoDto)
         {
             var evento = new Evento
@@ -107,6 +109,8 @@ namespace Eventify.Controllers
             });
         }
         [HttpPut("{id}")]
+        [Authorize(Roles = "Amministratore")]
+
         public async Task<IActionResult> PutEvento(int id, CreateEventoDto updateEventoDto)
         {
             var evento = await _context.Eventi.FindAsync(id);
@@ -128,6 +132,8 @@ namespace Eventify.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Amministratore")]
+
         public async Task<IActionResult> DeleteEvento(int id)
         {
             var evento = await _context.Eventi.FindAsync(id);
