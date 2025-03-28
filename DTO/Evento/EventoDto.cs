@@ -11,7 +11,6 @@ namespace Eventify.DTO.Evento
         public string Descrizione { get; set; }
         public int Capienza { get; set; }
         public int ArtistaId { get; set; }
-        public string NomeArtista { get; set; }
         public int BigliettiDisponibili { get; set; }
         public decimal PrezzoBiglietto { get; set; }
     }

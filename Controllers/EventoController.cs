@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Eventify.Data;
 using System.Linq;
-using Eventify.DTO.Evento;  // Modifica questa riga per importare i DTO dalla cartella corretta
+using Eventify.DTO.Evento;  
 
 namespace Eventify.Controllers
 {
@@ -35,7 +35,6 @@ namespace Eventify.Controllers
                     Descrizione = e.Descrizione,
                     Capienza = e.Capienza,
                     ArtistaId = e.ArtistaId,
-                    NomeArtista = e.Artista.Nome,
                     BigliettiDisponibili = e.BigliettiDisponibili,
                     PrezzoBiglietto = e.PrezzoBiglietto
 
@@ -64,7 +63,6 @@ namespace Eventify.Controllers
                 Descrizione = evento.Descrizione,
                 Capienza = evento.Capienza,
                 ArtistaId = evento.ArtistaId,
-                NomeArtista = evento.Artista.Nome,
                 BigliettiDisponibili = evento.BigliettiDisponibili,
                 PrezzoBiglietto = evento.PrezzoBiglietto,
 
@@ -103,7 +101,6 @@ namespace Eventify.Controllers
                 Descrizione = evento.Descrizione,
                 Capienza = evento.Capienza,
                 ArtistaId = evento.ArtistaId,
-                NomeArtista = evento.Artista?.Nome,
                 BigliettiDisponibili = evento.BigliettiDisponibili,
                 PrezzoBiglietto = evento.PrezzoBiglietto
             });
